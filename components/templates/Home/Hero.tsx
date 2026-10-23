@@ -161,7 +161,7 @@ export function Hero() {
       </div>
 
       {/* ---------- Scroll hint (optional) ---------- */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 0.8 }}
@@ -173,7 +173,7 @@ export function Hero() {
           transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
           className="inline-block h-6 w-[1px] bg-white/40"
         />
-      </motion.div>
+      </motion.div> */}
     </section>
   )
 }

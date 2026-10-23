@@ -110,7 +110,6 @@ export function Navbar() {
         {/* RIGHT: Get Connected */}
         <div className="flex items-center gap-2">
           <Button
-            asChild
             size="sm"
             className="hidden h-9 rounded-full px-5 font-semibold shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 sm:inline-flex"
           >
@@ -180,10 +179,7 @@ export function Navbar() {
                 transition={{ delay: 0.2 }}
                 className="mt-1 border-t border-border/60 pt-2"
               >
-                <Button
-                  asChild
-                  className="h-10 w-full rounded-full font-semibold"
-                >
+                <Button className="h-10 w-full rounded-full font-semibold">
                   <Link href="/connect" onClick={() => setMobileOpen(false)}>
                     Get Connected
                   </Link>

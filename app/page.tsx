@@ -1,10 +1,12 @@
-import { Button } from "@/components/ui/button"
 import { Hero } from "@/components/templates/Home/Hero"
+
+import { ServiceInfoSection } from "@/components/templates/Home/ServiceInfo"
 
 export default function Page() {
   return (
-    <div className="border border-black">
+    <div className="">
       <Hero />
+      <ServiceInfoSection />
     </div>
   )
 }
