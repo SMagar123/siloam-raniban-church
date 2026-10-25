@@ -1,10 +1,13 @@
-import { Geist, Geist_Mono, Outfit } from "next/font/google"
+import { Geist_Mono, Outfit } from "next/font/google"
 
-import "./globals.css"
+import "@/app/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 import { SmoothScrollProvider } from "@/components/molecules/SmoothScroll"
 import { Navbar } from "@/components/organisms/Navbar"
+import { Metadata } from "next"
+import { ScrollToTop } from "@/components/molecules/ScrollToTop"
+import { Footer } from "@/components/organisms/Footer"
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -37,7 +40,10 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <Navbar />
-          <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          <SmoothScrollProvider>
+            {children}
+            <Footer />
+          </SmoothScrollProvider>
         </ThemeProvider>
       </body>
     </html>
