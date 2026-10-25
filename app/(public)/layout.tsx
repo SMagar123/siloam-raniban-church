@@ -17,7 +17,7 @@ const fontMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Siloam Church",
+  title: "Siloam Raniban Church",
   description: "A place of worship, community, and grace.",
 }
 

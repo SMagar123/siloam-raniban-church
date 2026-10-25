@@ -76,9 +76,9 @@ export function Hero() {
       {/* Base darken */}
       <div className="absolute inset-0 -z-10 bg-black/40" />
       {/* Gradient for extra depth (heavier at bottom for CTA contrast) */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/30 to-black/60" />
+      <div className="absolute inset-0 -z-10 bg-linear-to-b from-black/60 via-black/30 to-black/60" />
       {/* Optional: subtle vignette */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,_transparent_40%,_rgba(0,0,0,0.5)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.5)_100%)]" />
 
       {/* ---------- Content ---------- */}
       <div className="relative z-10 container mx-auto flex min-h-screen flex-col items-center justify-center px-6 text-center text-white">
@@ -99,7 +99,9 @@ export function Hero() {
         >
           A place of grace,
           <br />
-          <span className="text-white/90">community &amp; hope.</span>
+          <span className="text-white/90">
+            community &amp; hope in Jesus Christ.
+          </span>
         </motion.h1>
 
         <motion.p

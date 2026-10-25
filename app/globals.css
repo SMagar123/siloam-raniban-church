@@ -127,3 +127,15 @@
     @apply font-sans;
     }
 }
+
+/* animations */
+.marquee-track {
+  animation-name: var(--marquee-name);
+  animation-duration: var(--marquee-duration);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.marquee-pause-hover:hover {
+  animation-play-state: paused;
+}
