@@ -125,7 +125,7 @@ export function Hero() {
             size="lg"
             className="h-12 rounded-full px-7 text-base font-semibold shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0"
           >
-            <Link href="/connect" className="flex items-center gap-2">
+            <Link href="/visit" className="flex items-center gap-2">
               Plan Your Visit
               <ArrowRight className="size-4 lg:size-6" />
             </Link>
