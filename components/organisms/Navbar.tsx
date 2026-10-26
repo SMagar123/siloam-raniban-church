@@ -15,14 +15,14 @@ const navLinks = [
   { label: "Visitor's Guide", href: "/visit" },
   { label: "Events", href: "/events" },
   { label: "Articles", href: "/blog" },
-  { label: "Medias", href: "/medias" },
+  { label: "Gallery", href: "/media" },
 ]
 
 // The links that will be grouped in the dropdown ONLY between md and lg
 const groupedLinks = [
   { label: "Events", href: "/events" },
   { label: "Articles", href: "/blog" },
-  { label: "Medias", href: "/medias" },
+  { label: "Gallery", href: "/media" },
 ]
 
 // The links that are always visible on desktop (lg and up)
