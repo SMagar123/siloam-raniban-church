@@ -1,25 +1,43 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "motion/react"
-import { Menu, X, Church } from "lucide-react"
+import { Menu, X, Church, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
+// All links
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
-  { label: "Events", href: "/events" },
   { label: "Visitor's Guide", href: "/visit" },
+  { label: "Events", href: "/events" },
+  { label: "Articles", href: "/blog" },
   { label: "Medias", href: "/medias" },
+]
+
+// The links that will be grouped in the dropdown ONLY between md and lg
+const groupedLinks = [
+  { label: "Events", href: "/events" },
+  { label: "Articles", href: "/blog" },
+  { label: "Medias", href: "/medias" },
+]
+
+// The links that are always visible on desktop (lg and up)
+const primaryLinks = [
+  { label: "Home", href: "/" },
+  { label: "About Us", href: "/about" },
+  { label: "Visitor's Guide", href: "/visit" },
 ]
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
   const pathname = usePathname()
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -27,6 +45,33 @@ export function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setMoreOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  // Close dropdown on route change
+  useEffect(() => {
+    setMoreOpen(false)
+    setMobileOpen(false)
+  }, [pathname])
+
+  const isLinkActive = (href: string) => {
+    if (href === "/") return pathname === "/"
+    return pathname === href || pathname.startsWith(`${href}/`)
+  }
+
+  const isGroupedActive = groupedLinks.some((link) => isLinkActive(link.href))
 
   return (
     <motion.header
@@ -37,7 +82,7 @@ export function Navbar() {
     >
       <motion.nav
         animate={{
-          maxWidth: scrolled ? "960px" : "1120px",
+          maxWidth: scrolled ? "1100px" : "1200px",
           paddingTop: scrolled ? 10 : 14,
           paddingBottom: scrolled ? 10 : 14,
           backgroundColor: scrolled
@@ -72,30 +117,22 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* MIDDLE: Desktop links */}
-        <ul className="hidden items-center gap-1 md:flex">
+        {/* MIDDLE: Desktop Links */}
+        {/* Visible only on lg and up (1024px+) */}
+        <ul className="hidden items-center gap-1 lg:flex">
           {navLinks.map((link) => {
-            // Home should only be active on the exact "/" route
-            const isActive =
-              link.href === "/"
-                ? pathname === "/"
-                : pathname === link.href || pathname.startsWith(`${link.href}/`)
-
+            const isActive = isLinkActive(link.href)
             return (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  aria-current={isActive ? "page" : undefined}
                   className={cn(
                     "relative rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
                     isActive
                       ? "text-foreground"
                       : "text-foreground/75 hover:text-foreground",
-                    // underline base
                     "after:absolute after:right-3.5 after:-bottom-0.5 after:left-3.5 after:h-[2px]",
-                    "after:origin-left after:rounded-full after:bg-primary",
-                    "after:transition-transform after:duration-300",
-                    // active → underline visible; else → grow on hover
+                    "after:origin-left after:rounded-full after:bg-primary after:transition-transform after:duration-300",
                     isActive
                       ? "after:scale-x-100"
                       : "after:scale-x-0 hover:after:scale-x-100"
@@ -108,7 +145,92 @@ export function Navbar() {
           })}
         </ul>
 
-        {/* RIGHT: Get Connected */}
+        {/* MIDDLE: Tablet Links (md to lg) */}
+        {/* Visible only between md (768px) and lg (1024px) */}
+        <ul className="hidden items-center gap-1 md:flex lg:hidden">
+          {primaryLinks.map((link) => {
+            const isActive = isLinkActive(link.href)
+            return (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className={cn(
+                    "relative rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
+                    isActive
+                      ? "text-foreground"
+                      : "text-foreground/75 hover:text-foreground",
+                    "after:absolute after:right-3.5 after:-bottom-0.5 after:left-3.5 after:h-[2px]",
+                    "after:origin-left after:rounded-full after:bg-primary after:transition-transform after:duration-300",
+                    isActive
+                      ? "after:scale-x-100"
+                      : "after:scale-x-0 hover:after:scale-x-100"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            )
+          })}
+
+          {/* More Dropdown (Tablet only) */}
+          <li className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setMoreOpen(!moreOpen)}
+              className={cn(
+                "relative flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
+                isGroupedActive || moreOpen
+                  ? "text-foreground"
+                  : "text-foreground/75 hover:text-foreground",
+                "after:absolute after:right-3.5 after:-bottom-0.5 after:left-3.5 after:h-[2px]",
+                "after:origin-left after:rounded-full after:bg-primary after:transition-transform after:duration-300",
+                isGroupedActive ? "after:scale-x-100" : "after:scale-x-0"
+              )}
+            >
+              More
+              <ChevronDown
+                className={cn(
+                  "size-4 transition-transform duration-200",
+                  moreOpen && "rotate-180"
+                )}
+              />
+            </button>
+
+            <AnimatePresence>
+              {moreOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="absolute top-full left-1/2 mt-2 w-48 -translate-x-1/2 overflow-hidden rounded-xl border border-border/60 bg-card p-2 shadow-xl backdrop-blur-xl"
+                >
+                  <ul className="flex flex-col gap-1">
+                    {groupedLinks.map((link) => {
+                      const isActive = isLinkActive(link.href)
+                      return (
+                        <li key={link.href}>
+                          <Link
+                            href={link.href}
+                            className={cn(
+                              "block rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                              isActive
+                                ? "bg-accent text-foreground"
+                                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                            )}
+                          >
+                            {link.label}
+                          </Link>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </li>
+        </ul>
+
+        {/* RIGHT: Get Connected & Mobile Toggle */}
         <div className="flex items-center gap-2">
           <Button
             size="sm"
@@ -117,7 +239,7 @@ export function Navbar() {
             <Link href="/connect">Get Connected</Link>
           </Button>
 
-          {/* Mobile menu toggle */}
+          {/* Mobile menu toggle (Visible below md) */}
           <button
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Toggle menu"
@@ -133,7 +255,7 @@ export function Navbar() {
         </div>
       </motion.nav>
 
-      {/* Mobile dropdown */}
+      {/* Mobile Dropdown (Visible below md) */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -145,12 +267,7 @@ export function Navbar() {
           >
             <ul className="flex flex-col gap-1">
               {navLinks.map((link, i) => {
-                const isActive =
-                  link.href === "/"
-                    ? pathname === "/"
-                    : pathname === link.href ||
-                      pathname.startsWith(`${link.href}/`)
-
+                const isActive = isLinkActive(link.href)
                 return (
                   <motion.li
                     key={link.href}
@@ -161,7 +278,6 @@ export function Navbar() {
                     <Link
                       href={link.href}
                       onClick={() => setMobileOpen(false)}
-                      aria-current={isActive ? "page" : undefined}
                       className={cn(
                         "block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                         isActive
