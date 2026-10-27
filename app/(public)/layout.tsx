@@ -7,6 +7,7 @@ import { SmoothScrollProvider } from "@/components/molecules/SmoothScroll"
 import { Navbar } from "@/components/organisms/Navbar"
 import { Metadata } from "next"
 import { ScrollToTop } from "@/components/molecules/ScrollToTop"
+import { Toaster } from "sonner"
 import { Footer } from "@/components/organisms/Footer"
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans" })
@@ -44,6 +45,7 @@ export default function RootLayout({
             {children}
             <Footer />
           </SmoothScrollProvider>
+          <Toaster position="bottom-right" richColors />
         </ThemeProvider>
       </body>
     </html>
