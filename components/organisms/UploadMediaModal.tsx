@@ -20,6 +20,8 @@ import { uploadMedia } from "@/app/actions/media"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
+const MAX_FILE_SIZE = 1 * 1024 * 1024 // 1MB
+
 export function UploadMediaModal() {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -36,6 +38,7 @@ export function UploadMediaModal() {
       setOpen(false)
       setFileName(null)
     } else {
+      // Display the exact error message from the server
       toast.error(result.error || "Failed to upload media")
     }
     setIsSubmitting(false)
@@ -43,7 +46,16 @@ export function UploadMediaModal() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) setFileName(file.name)
+    if (file) {
+      // 3. CLIENT-SIDE SIZE CHECK
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`File is too large. Maximum size is 1MB.`)
+        e.target.value = "" // Reset input
+        setFileName(null)
+        return
+      }
+      setFileName(file.name)
+    }
   }
 
   return (
@@ -153,7 +165,7 @@ export function UploadMediaModal() {
                     Click to upload or drag and drop
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    SVG, PNG, JPG or GIF (max. 5MB)
+                    Max file size: 1MB
                   </p>
                 </>
               )}
