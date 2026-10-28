@@ -6,13 +6,12 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { z } from "zod"
 
-// Validation Schema
 const postSchema = z.object({
   title: z.string().min(3),
   slug: z.string().min(3),
   shortDescription: z.string().min(10),
   content: z.string().min(20),
-  thumbnail: z.string().url().optional().or(z.literal("")),
+  thumbnailId: z.string().optional().nullable(), // Changed to accept ID
   category: z.string().min(2),
   author: z.string().min(2),
   metaTitle: z.string().optional(),
@@ -20,30 +19,27 @@ const postSchema = z.object({
 })
 
 export async function createPost(formData: FormData) {
-  // 1. Extract data from FormData
   const rawData = {
     title: formData.get("title"),
     slug: formData.get("slug"),
     shortDescription: formData.get("shortDescription"),
     content: formData.get("content"),
-    thumbnail: formData.get("thumbnail"),
+    thumbnailId: formData.get("thumbnailId"),
     category: formData.get("category"),
     author: formData.get("author"),
     metaTitle: formData.get("metaTitle"),
     metaDescription: formData.get("metaDescription"),
   }
 
-  // 2. Validate
   const validatedData = postSchema.parse(rawData)
 
-  // 3. Insert into database
   try {
     await db.insert(posts).values({
       title: validatedData.title,
       slug: validatedData.slug,
       shortDescription: validatedData.shortDescription,
       content: validatedData.content,
-      thumbnail: validatedData.thumbnail || null,
+      thumbnailId: validatedData.thumbnailId || null, // Save ID instead of URL
       category: validatedData.category,
       author: validatedData.author,
       metaInfo: {
@@ -57,10 +53,8 @@ export async function createPost(formData: FormData) {
     throw new Error("Failed to create post. Slug might already exist.")
   }
 
-  // 4. Revalidate Public Pages
   revalidatePath("/blog")
   revalidatePath("/admin/posts")
 
-  // 5. Redirect to Admin Post List
   redirect("/admin/posts")
 }

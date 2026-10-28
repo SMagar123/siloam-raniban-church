@@ -5,33 +5,44 @@ import {
   text,
   timestamp,
   jsonb,
+  boolean,
 } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
+import { relations } from "drizzle-orm"
 
+export const media = pgTable("media", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  title: varchar("title", { length: 255 }).notNull(),
+  url: varchar("url", { length: 500 }).notNull(),
+  type: varchar("type", { length: 50 }).notNull(),
+  thumbnail: varchar("thumbnail", { length: 500 }),
+  videoUrl: varchar("video_url", { length: 500 }),
+  showInGallery: boolean("show_in_gallery").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+})
+
+// --- Posts Table ---
 export const posts = pgTable("posts", {
-  // Core Identity
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   title: varchar("title", { length: 255 }).notNull(),
   slug: varchar("slug", { length: 255 }).notNull().unique(),
   shortDescription: text("short_description").notNull(),
+  content: text("content").notNull(),
 
-  // Content & Media
-  content: text("content").notNull(), // Markdown or HTML
-  thumbnail: varchar("thumbnail", { length: 500 }), // URL to image
+  // NEW: Reference the media table for the thumbnail
+  thumbnailId: uuid("thumbnail_id").references(() => media.id, {
+    onDelete: "set null",
+  }),
 
-  // Categorization & Authorship
   category: varchar("category", { length: 100 }).notNull(),
   author: varchar("author", { length: 150 }).notNull(),
-
-  // Dates
   publishedDate: timestamp("published_date").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-
-  // SEO Meta Info (Stored as JSON)
-  // Example: { title: "...", description: "...", keywords: ["church", "blog"] }
   metaInfo: jsonb("meta_info").$type<{
     title?: string
     description?: string
@@ -39,3 +50,10 @@ export const posts = pgTable("posts", {
     ogImage?: string
   }>(),
 })
+
+export const postsRelations = relations(posts, ({ one }) => ({
+  thumbnail: one(media, {
+    fields: [posts.thumbnailId],
+    references: [media.id],
+  }),
+}))
