@@ -30,6 +30,8 @@ export function MediaGrid({ items }: { items: any[] }) {
     if (e.key === "Escape") closeAll()
   }
 
+  console.log("activeVideo", activeVideo)
+
   return (
     <section className="py-24">
       <div className="container mx-auto px-4 md:px-6">

@@ -15,42 +15,52 @@ export async function uploadMedia(formData: FormData) {
     const title = formData.get("title") as string
     const type = formData.get("type") as "photo" | "video"
     const showInGallery = formData.get("showInGallery") === "on"
-    const videoUrl = formData.get("videoUrl") as string
+    const videoUrl = formData.get("videoUrl") as string | null
 
+    // --- Basic Validation ---
     if (!title) throw new Error("Title is required")
-
-    if (file && file.size > 0) {
-      // 1. SERVER-SIDE SIZE CHECK
-      if (file.size > MAX_FILE_SIZE) {
-        throw new Error(`File is too large. Maximum size is 1MB.`)
-      }
-    }
-
     if (type === "photo" && (!file || file.size === 0)) {
-      throw new Error("Image file is required")
+      throw new Error("An image file is required for photos")
     }
     if (type === "video" && !videoUrl) {
-      throw new Error("Video URL is required")
+      throw new Error("A Video URL is required for videos")
     }
 
-    let fileUrl: string | null = null
+    let uploadedFileUrl: string | null = null
 
+    // --- Handle File Upload ---
     if (file && file.size > 0) {
+      if (file.size > MAX_FILE_SIZE) {
+        throw new Error("File is too large. Maximum size is 1MB.")
+      }
+
       const uploadDir = path.join(process.cwd(), "public/uploads")
       await mkdir(uploadDir, { recursive: true })
+
       const fileExtension = file.name.split(".").pop() || "jpg"
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExtension}`
       const filePath = path.join(uploadDir, fileName)
 
-      const bytes = await file.arrayBuffer()
-      await writeFile(filePath, Buffer.from(bytes))
-      fileUrl = `/uploads/${fileName}`
+      await writeFile(filePath, Buffer.from(await file.arrayBuffer()))
+      uploadedFileUrl = `/uploads/${fileName}`
     }
 
+    // --- Determine DB Values based on Type ---
+    let dbUrl = ""
+    let dbThumbnail = null
+
+    if (type === "photo") {
+      dbUrl = uploadedFileUrl! // For photos, the URL is the uploaded file
+    } else if (type === "video") {
+      dbUrl = videoUrl! // For videos, the URL is the YouTube link
+      dbThumbnail = uploadedFileUrl // The uploaded file is the thumbnail
+    }
+
+    // --- Insert into Database ---
     await db.insert(media).values({
       title,
-      url: type === "photo" ? fileUrl! : videoUrl,
-      thumbnail: type === "video" ? fileUrl : null,
+      url: dbUrl,
+      thumbnail: dbThumbnail,
       type,
       showInGallery,
     })
@@ -59,15 +69,8 @@ export async function uploadMedia(formData: FormData) {
     revalidatePath("/media")
     return { success: true }
   } catch (error) {
-    // 2. GRACEFUL ERROR HANDLING
     console.error("Upload Error:", error)
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Failed to upload media. File might be too large.",
-    }
+    return { success: false, error: (error as Error).message }
   }
 }
 

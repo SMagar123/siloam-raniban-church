@@ -57,3 +57,14 @@ export const postsRelations = relations(posts, ({ one }) => ({
     references: [media.id],
   }),
 }))
+
+export const users = pgTable("users", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  role: varchar("role", { length: 50 }).default("admin").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+})

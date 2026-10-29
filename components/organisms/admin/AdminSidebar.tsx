@@ -14,6 +14,7 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { logoutAction } from "@/app/actions/auth"
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -121,11 +122,11 @@ export function AdminSidebar({
       </nav>
 
       {/* Footer / Logout */}
-      <div className="border-t border-border p-3">
-        <Link
-          href="/"
-          title={isCollapsed ? "Exit to Website" : undefined}
-          className="group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600"
+      <form action={logoutAction} className="w-full">
+        <button
+          type="submit"
+          title={isCollapsed ? "Logout" : undefined}
+          className="group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600"
         >
           <LogOut className="size-5 shrink-0 text-muted-foreground group-hover:text-red-600" />
           <AnimatePresence>
@@ -136,12 +137,12 @@ export function AdminSidebar({
                 exit={{ opacity: 0, width: 0 }}
                 className="whitespace-nowrap"
               >
-                Exit to Website
+                Logout
               </motion.span>
             )}
           </AnimatePresence>
-        </Link>
-      </div>
+        </button>
+      </form>
 
       {/* Toggle Button (Floating on the right edge) */}
       <button
